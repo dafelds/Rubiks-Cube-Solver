@@ -3,7 +3,7 @@ from copy import deepcopy
 
 class Cube:
     
-    position = {
+    face_position = {
         'U': (0,3),
         'L': (3,0),
         'F': (3,3),
@@ -11,10 +11,19 @@ class Cube:
         'B': (3,9),
         'D': (6,3)
     }
+
+    color_position = {
+        'W': (0,3),
+        'O': (3,0),
+        'G': (3,3),
+        'R': (3,6),
+        'B': (3,9),
+        'Y': (6,3)
+    }
     
     
-    def __init__(self, num_grid = False, color_grid = False):
-        if color_grid:
+    def __init__(self, num_grid: np.array = np.array([0]), color_grid: np.array = np.array([0])):
+        if any(color_grid.tolist()):
             self.color_grid = color_grid
             self.num_grid = num_grid
         else:
@@ -23,7 +32,7 @@ class Cube:
 
         
     @staticmethod
-    def build_num_grid():
+    def build_num_grid() -> np.array:
         a = np.empty((3,3))
         a[:] = np.nan
         b = []
@@ -38,10 +47,10 @@ class Cube:
     
     
     @staticmethod
-    def build_color_grid():
+    def build_color_grid() -> np.array:
         color_grid = np.empty((9,12)).astype('object')
         color_grid[:] = np.nan
-        for key, coord in Cube.position.items():
+        for key, coord in Cube.color_position.items():
             y, x = coord
             color_grid[y:y+3, x:x+3] = key
         
@@ -49,7 +58,7 @@ class Cube:
     
     
     @staticmethod
-    def _cycle(face, grid, rotation = 1):
+    def _cycle(face: str, grid: np.array, rotation: int = 1):
 
         if face == 'U':
             for _ in range(rotation):
@@ -84,7 +93,7 @@ class Cube:
 
                 
     @staticmethod
-    def _rotate(grid, x, y, rotation):
+    def _rotate(grid: np.array, x: int, y: int, rotation: int) -> np.array:
         return np.rot90(grid[y:y+3, x:x+3], -rotation)
 
     
@@ -96,8 +105,8 @@ class Cube:
         except IndexError:
             rotation = 1 if operation == operation.upper() else -1
         face = face.upper()
-        y = self.position[face][0]
-        x = self.position[face][1]
+        y = self.face_position[face][0]
+        x = self.face_position[face][1]
         self.num_grid[y:y+3, x:x+3] = self._rotate(self.num_grid, x, y, rotation)
         self.color_grid[y:y+3, x:x+3] = self._rotate(self.color_grid, x, y, rotation)
         self._cycle(face, self.color_grid, (rotation+4)%4)
